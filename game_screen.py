@@ -64,7 +64,7 @@ def game_screen(window):
                         selected = i
                 if BUTTON_RECT.collidepoint(event.pos):
                     start = True
-
+ 
         # Atualiza estado do jogo
         if start:
             seed = random.randrange(10 ** 6)        # a mesma pista para os dois
