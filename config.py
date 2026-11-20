@@ -21,7 +21,7 @@ SCREEN_X=180 # Define o centro horizontal do personagem
 HORIZON=130 # Define onde começa o chão do mapa
 LANES_Y=[175, 210, 245, 280] # Gurada a posição vertical do personagem ou dos itens em cada uma das quatro pistas
 LANE_SPEED=6 # Quantidade de pixels que o personagem se desloca ao trocar de pista
-STUN_FRAMES=30 # Penalidade caso colida
+STUN_FRAMES=30 # Quantidade de atualizações de penalidade caso colida
 STUN_SLOW=0.35 # Redução da velocidade quando colide
 
 PLAYER_SIZE=(52, 52)
