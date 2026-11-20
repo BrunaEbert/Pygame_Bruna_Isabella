@@ -70,7 +70,7 @@ class Explosion(pygame.sprite.Sprite):
 
             self.frame+=1 # Incrementa o índice
 
-            if self.frame==len(self.explosion_anim): # Verifica se todas as imans ja foram exibidas
+            if self.frame==len(self.explosion_anim): # Verifica se todas as imagens já foram exibidas
                 self.kill()
             else: #Mantém a troca de imagens
                 center=self.rect.center
