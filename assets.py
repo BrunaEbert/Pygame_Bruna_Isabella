@@ -1,8 +1,9 @@
+#Arquivo:cria e carrega as imagens, fontes e sons.Tudo vai para um dicionário (assets)
 import os
 import pygame
 from config import IMG_DIR, SND_DIR, PLAYER_SIZE, ITEM_SIZE, MID_W, HORIZON, SCENES
 
-
+#Chaves do dicionário
 BACKGROUND = 'background'
 PLAYER_IMGS = 'player_imgs'
 GHOST_IMG = 'ghost_img'
@@ -15,17 +16,9 @@ BIG_FONT = 'big_font'
 BOOM_SOUND = 'boom_sound'
 DESTROY_SOUND = 'destroy_sound'
 
-
-def player_image(filename, paint):
-    file = os.path.join(IMG_DIR, filename)
-    if os.path.exists(file):
-        return pygame.transform.scale(pygame.image.load(file).convert_alpha(), PLAYER_SIZE)
+#Personagens:Cada função cria uma folha transparente (SRCALPHA), desenha nela
+def make_scooby():
     img = pygame.Surface(PLAYER_SIZE, pygame.SRCALPHA)
-    paint(img)
-    return img
-
-
-def paint_scooby(img):
     brown = (150, 100, 55)
     pygame.draw.ellipse(img, brown, (6, 20, 34, 24))                        # corpo
     for x in (12, 18, 30, 36):
@@ -34,18 +27,20 @@ def paint_scooby(img):
     pygame.draw.ellipse(img, (95, 60, 30), (30, 10, 9, 16))                 # orelha
     pygame.draw.circle(img, (255, 255, 255), (42, 16), 3)                   # olho
     pygame.draw.rect(img, (60, 170, 200), (32, 28, 10, 4))                  # coleira
+    return img
 
 
-def paint_salsicha(img):
+def make_salsicha():
+    img = pygame.Surface(PLAYER_SIZE, pygame.SRCALPHA)
     hair = (110, 70, 40)
     pygame.draw.rect(img, hair, (17, 38, 18, 12))                           # calça
     pygame.draw.rect(img, (80, 175, 90), (14, 20, 24, 20), border_radius=4)  # camiseta
     pygame.draw.circle(img, (240, 200, 160), (27, 12), 10)                  # cabeça
     pygame.draw.ellipse(img, hair, (17, 1, 20, 9))                          # cabelo
     pygame.draw.circle(img, (20, 20, 20), (31, 12), 2)                      # olho
+    return img                   # olho
 
-
-# Fantasma e lápide
+# Fantasma e lápide desenhados
 def make_ghost():
     img = pygame.Surface(ITEM_SIZE, pygame.SRCALPHA)
     pygame.draw.circle(img, (235, 240, 255), (20, 20), 20)
@@ -64,8 +59,9 @@ def make_tomb():
     img.blit(text, text.get_rect(center=(20, 28)))
     return img
 
-
-# Cenários: o que passa ao fundo 
+#Cenários:cada função pinta UMA faixa larga com o cenário da cena.
+#"s" é a faixa onde se desenha e "c" é a cor do cenário daquela cena
+#Floresta:pinheiros, uma van parada e olhos brilhando nos arbustos
 def paint_forest(s, c):
     for x in range(30, MID_W, 110):                                         # pinheiros
         h = 70 + (x * 7) % 40
@@ -81,7 +77,7 @@ def paint_forest(s, c):
         pygame.draw.circle(s, (255, 230, 80), (x + 22, HORIZON - 18), 3)
         pygame.draw.circle(s, (255, 230, 80), (x + 36, HORIZON - 18), 3)
 
-
+#Casa Assombrada: duas casas com janelas acesas e árvores secas
 def paint_house(s, c):
     for x in (120, 930):                                                    # casas
         pygame.draw.rect(s, c, (x, 60, 190, 70))
@@ -92,7 +88,7 @@ def paint_house(s, c):
         pygame.draw.line(s, c, (x, HORIZON), (x + 15, 55), 9)
         pygame.draw.line(s, c, (x + 8, 90), (x + 40, 60), 5)
 
-
+#Navio fantasma: dois navios com mastros, velas rasgadas e luzes verdes
 def paint_ship(s, c):
     for x in (120, 960):                                                    # navios
         pygame.draw.polygon(s, c, [(x, 88), (x + 210, 88), (x + 180, 124), (x + 30, 124)])
@@ -103,22 +99,23 @@ def paint_ship(s, c):
             pygame.draw.circle(s, (120, 255, 170), (x + m, 104), 5)         # luz verde
     pygame.draw.rect(s, c, (0, HORIZON - 8, MID_W, 8))
 
-
+#Funcao principal: monta o dicionário com tudo o que o jogo usa e devolve para o game_screen
 def load_assets():
     assets = {}
+    #Imagens
     assets[BACKGROUND] = pygame.image.load(os.path.join(IMG_DIR, 'ceu.png')).convert()
-    assets[PLAYER_IMGS] = [player_image('scooby.png', paint_scooby),
-                           player_image('salsicha.png', paint_salsicha)]
+    assets[PLAYER_IMGS] = [make_scooby(), make_salsicha()]
     assets[GHOST_IMG] = make_ghost()
     assets[TOMB_IMG] = make_tomb()
 
-    # Uma camada de cenário para cada cena 
+    #Cenários:zip junta cada cena da lista SCENES com a sua função de desenho
     assets[MIDS] = {}
     for scene, paint in zip(SCENES, [paint_forest, paint_house, paint_ship]):
         mid = pygame.Surface((MID_W, HORIZON), pygame.SRCALPHA)
         paint(mid, scene['color'])
         assets[MIDS][scene['name']] = mid
 
+    # Explosão: carrega os 9 quadros (explosao0.png até explosao8.png) numa lista
     explosion_anim = []
     for i in range(9):
         filename = os.path.join(IMG_DIR, 'explosao{}.png'.format(i))
@@ -127,6 +124,7 @@ def load_assets():
         explosion_anim.append(img)
     assets[EXPLOSION_ANIM] = explosion_anim
 
+    #Fontes do computador (arial): pontos/texto médio, texto pequeno e a contagem gigante
     assets[SCORE_FONT] = pygame.font.SysFont('arial', 34, True)
     assets[FONT] = pygame.font.SysFont('arial', 20, True)
     assets[BIG_FONT] = pygame.font.SysFont('arial', 110, True)
